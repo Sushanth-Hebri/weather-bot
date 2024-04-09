@@ -1,6 +1,7 @@
 import json
 from difflib import SequenceMatcher
 from flask import Flask, request
+from waitress import serve  # Import Waitress
 
 app = Flask(__name__)
 
@@ -44,4 +45,4 @@ def chatbot():
         return "", 200  # Return empty response with status code 200 for HEAD requests
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    serve(app, host='0.0.0.0', port=5000)  # Use Waitress to serve the app
