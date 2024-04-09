@@ -7,6 +7,10 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
+# Load cities from the text file
+with open("cities.txt", "r") as file:
+    cities = [city.strip() for city in file.readlines()]
+
 def get_weather(city):
     api_key = "7f2847f45cfd99c08cd9d979d939bb21"  # Replace with your OpenWeatherMap API key
     base_url = "https://api.openweathermap.org/data/2.5/weather"
@@ -23,20 +27,31 @@ def get_weather(city):
         print("Error fetching weather data")
         return None
 
+def extract_city(query):
+    # Check if any city name from the file is present in the user query
+    for city in cities:
+        if city.lower() in query.lower():
+            return city
+    return None
+
 @app.route("/", methods=["POST"])
 def chatbot():
     data = request.json
-    city = data.get('city')  # Assuming the user sends the city name in the 'city' field
-    if city:
-        weather_data = get_weather(city)
-        if weather_data:
-            temperature = weather_data['main']['temp']
-            description = weather_data['weather'][0]['description']
-            response = f"Weather in {city}: Temperature: {temperature} °C, Description: {description}"
+    query = data.get('query')  # Assuming the user sends the query in the 'query' field
+    if query:
+        city = extract_city(query)
+        if city:
+            weather_data = get_weather(city)
+            if weather_data:
+                temperature = weather_data['main']['temp']
+                description = weather_data['weather'][0]['description']
+                response = f"Weather in {city}: Temperature: {temperature} °C, Description: {description}"
+            else:
+                response = f"Sorry, weather data for {city} is not available"
         else:
-            response = f"Sorry, weather data for {city} is not available"
+            response = "No city mentioned in the query"
     else:
-        response = "No city provided"
+        response = "No query provided"
     return {"response": response}
 
 if __name__ == "__main__":
