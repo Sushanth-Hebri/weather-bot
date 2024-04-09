@@ -5,7 +5,7 @@ from flask import Flask, request
 app = Flask(__name__)
 
 # Load non-weather responses from JSON file
-with open("non_weather_responses.json") as file:
+with open("/content/non_weather_responses.json") as file:
     non_weather_data = json.load(file)
 
 def partial_match(query, item):
@@ -31,12 +31,17 @@ def process_user_query(query):
             response = "Sorry, I can only provide weather information. Please ask about weather or temperature."
     return response
 
-@app.route("/", methods=["POST"])
+@app.route("/", methods=["GET", "HEAD"])
 def chatbot():
-    data = request.json
-    user_query = data["query"]
-    response = process_user_query(user_query)
-    return {"response": response}
+    if request.method == "GET":
+        query = request.args.get("query")
+        if query:
+            response = process_user_query(query)
+        else:
+            response = "No query provided"
+        return {"response": response}
+    else:
+        return "", 200  # Return empty response with status code 200 for HEAD requests
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
