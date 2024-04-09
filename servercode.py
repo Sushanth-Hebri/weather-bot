@@ -9,7 +9,7 @@ CORS(app)
 
 # Load cities from the text file
 with open("cities.txt", "r") as file:
-    cities = [city.strip() for city in file.readlines()]
+    cities = [city.strip().lower() for city in file.readlines()]
 
 def get_weather(city):
     api_key = "7f2847f45cfd99c08cd9d979d939bb21"  # Replace with your OpenWeatherMap API key
@@ -28,10 +28,11 @@ def get_weather(city):
         return None
 
 def extract_city(query):
-    # Check if any city name from the file is present in the user query
-    for city in cities:
-        if city.lower() in query.lower():
-            return city
+    # Split the query into words and check if any word is a city name
+    words = query.lower().split()
+    for word in words:
+        if word in cities:
+            return word.title()  # Return the city name with proper casing
     return None
 
 @app.route("/", methods=["POST"])
@@ -49,7 +50,7 @@ def chatbot():
             else:
                 response = f"Sorry, weather data for {city} is not available"
         else:
-            response = "No city mentioned in the query"
+            response = "City not found in the query"
     else:
         response = "No query provided"
     return {"response": response}
