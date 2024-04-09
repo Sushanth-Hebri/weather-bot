@@ -1,11 +1,11 @@
 import json
 from difflib import SequenceMatcher
 from flask import Flask, request
-from flask_cors import CORS  # Import CORS from flask_cors
+from flask_cors import CORS
 from waitress import serve
 
 app = Flask(__name__)
-CORS(app)  # Add CORS to your Flask app
+CORS(app)
 
 # Load non-weather responses from JSON file
 with open("non_weather_responses.json") as file:
@@ -18,9 +18,8 @@ def partial_match(query, item):
 def process_user_query(query):
     query_lower = query.lower()
     if any(keyword in query_lower for keyword in ["weather", "temperature"]):
-        city = input("May I know the name of the city you're interested in? ")
         # Code to fetch weather data and process response
-        response = f"Weather in {city}: Temperature: 25 °C, Description: Sunny"  # Placeholder response
+        response = "Placeholder weather information"  # Placeholder response
     else:
         # Check for partial matches in non-weather responses
         matched_item = None
