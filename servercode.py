@@ -28,11 +28,10 @@ def get_weather(city):
         return None
 
 def extract_city(query):
-    # Split the query into words and check if any word is a city name
-    words = query.lower().split()
-    for word in words:
+    query_words = query.lower().split()
+    for word in query_words:
         if word in cities:
-            return word.title()  # Return the city name with proper casing
+            return word.title()
     return None
 
 @app.route("/", methods=["POST"])
@@ -50,7 +49,7 @@ def chatbot():
             else:
                 response = f"Sorry, weather data for {city} is not available"
         else:
-            response = "City not found in the query"
+            response = "No city found in the query"
     else:
         response = "No query provided"
     return {"response": response}
