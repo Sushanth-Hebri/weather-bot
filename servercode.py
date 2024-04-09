@@ -39,17 +39,24 @@ def chatbot():
     data = request.json
     query = data.get('query')  # Assuming the user sends the query in the 'query' field
     if query:
-        city = extract_city(query)
-        if city:
-            weather_data = get_weather(city)
-            if weather_data:
-                temperature = weather_data['main']['temp']
-                description = weather_data['weather'][0]['description']
-                response = f"Weather in {city}: Temperature: {temperature} °C, Description: {description}"
-            else:
-                response = f"Sorry, weather data for {city} is not available"
+        if query.lower() == "hi":
+            response = "Hey there, how can I help you today?"
+        elif query.lower() == "thanks":
+            response = "My pleasure."
+        elif query.lower() == "bye":
+            response = "Goodbye!"
         else:
-            response = "No city found in the query"
+            city = extract_city(query)
+            if city:
+                weather_data = get_weather(city)
+                if weather_data:
+                    temperature = weather_data['main']['temp']
+                    description = weather_data['weather'][0]['description']
+                    response = f"Weather in {city}: Temperature: {temperature} °C, Description: {description}"
+                else:
+                    response = f"Sorry, weather data for {city} is not available"
+            else:
+                response = "No city found in the query"
     else:
         response = "No query provided"
     return {"response": response}
