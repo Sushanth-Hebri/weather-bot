@@ -5,7 +5,7 @@ from flask import Flask, request
 app = Flask(__name__)
 
 # Load non-weather responses from JSON file
-with open("/content/non_weather_responses.json") as file:
+with open("non_weather_responses.json") as file:
     non_weather_data = json.load(file)
 
 def partial_match(query, item):
