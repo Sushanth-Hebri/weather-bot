@@ -1,0 +1,40 @@
+{
+  "requests": [
+    {
+      "request": "greeting",
+      "response": "Hello there! How can I help you?"
+    },
+    {
+      "request": "farewell",
+      "response": "Goodbye! Have a great day!"
+    },
+    {
+      "request": "help",
+      "response": "Sure, I can provide weather information. Just ask about the weather or temperature in a specific city."
+    },
+    {
+      "request": "thanks",
+      "response": "You're welcome! If you need any more information, feel free to ask."
+    },
+    {
+      "request": "about",
+      "response": "I'm a weather bot designed to provide weather forecasts. Ask me about the weather or temperature in a city."
+    },
+    {
+      "request": "default",
+      "response": "I'm sorry, I didn't quite understand. Could you please ask again?"
+    },
+    {
+      "request": "cancel",
+      "response": "No worries! Let me know if there's anything else I can help with."
+    },
+    {
+      "request": "feedback",
+      "response": "Thank you for your feedback! We're always looking to improve."
+    },
+    {
+      "request": "long_query_example",
+      "response": "I see you have a detailed question. Please go ahead and ask, and I'll do my best to assist you."
+    }
+  ]
+}
