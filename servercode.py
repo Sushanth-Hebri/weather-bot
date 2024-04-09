@@ -1,9 +1,11 @@
 import json
 from difflib import SequenceMatcher
 from flask import Flask, request
-from waitress import serve  # Import Waitress
+from flask_cors import CORS  # Import CORS from flask_cors
+from waitress import serve
 
 app = Flask(__name__)
+CORS(app)  # Add CORS to your Flask app
 
 # Load non-weather responses from JSON file
 with open("non_weather_responses.json") as file:
@@ -45,4 +47,4 @@ def chatbot():
         return "", 200  # Return empty response with status code 200 for HEAD requests
 
 if __name__ == "__main__":
-    serve(app, host='0.0.0.0', port=5000)  # Use Waitress to serve the app
+    serve(app, host='0.0.0.0', port=5000)
