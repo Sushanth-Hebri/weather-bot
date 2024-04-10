@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from waitress import serve
 import requests
@@ -42,7 +42,7 @@ def get_news_headlines():
         response.raise_for_status()  # Raise an exception for non-200 status codes
         soup = BeautifulSoup(response.content, "html.parser")
         itemprop_content = soup.find('h1', itemprop="itemprop").get_text(strip=True)  # Assuming "itemprop" is the attribute
-        return itemprop_content
+        return {'headlines': itemprop_content}  # Return headlines as JSON
     except requests.RequestException as e:
         print(f"Error fetching news headlines: {e}")
         return None
@@ -66,7 +66,7 @@ def chatbot():
             if news_headlines:
                 response = news_headlines
             else:
-                response = "Sorry, could not fetch news headlines at the moment."
+                response = {"error": "Sorry, could not fetch news headlines at the moment."}
         else:
             city = extract_city(query)
             if city:
@@ -81,7 +81,7 @@ def chatbot():
                 response = "No city found in the query"
     else:
         response = "No query provided"
-    return {"response": response}
+    return jsonify({"response": response})  # Return response as JSON
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=5000)
