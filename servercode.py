@@ -65,6 +65,27 @@ def get_news_headlines(class_name):
         logging.error(f"Error parsing news headlines: {e}")
         return None
 
+def get_hn2z7_headlines():
+    url = 'https://timesofindia.indiatimes.com/'  # Replace with the actual URL
+    try:
+        logging.info("Fetching news headlines from Times of India with class Hn2z7...")
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for non-200 status codes
+        soup = BeautifulSoup(response.text, 'html.parser')
+        hn2z7_tag = soup.find('a', class_='Hn2z7')
+        if hn2z7_tag:
+            headlines_text = hn2z7_tag.get_text(strip=True)
+            return headlines_text
+        else:
+            logging.error("No Hn2z7 tag found within an <a> tag")
+            return None
+    except requests.RequestException as e:
+        logging.error(f"Error fetching Hn2z7 headlines: {e}")
+        return None
+    except Exception as e:
+        logging.error(f"Error parsing Hn2z7 headlines: {e}")
+        return None
+
 @app.route("/", methods=["POST"])
 def chatbot():
     data = request.json
@@ -78,7 +99,7 @@ def chatbot():
             response = "Goodbye!"
         elif query.lower() == "headlines":
             headlines1 = get_news_headlines('hoid1')
-            headlines2 = get_news_headlines('Hn2z7')
+            headlines2 = get_hn2z7_headlines()
             if headlines1 and headlines2:
                 response = {"headlines1": headlines1, "headlines2": headlines2}
             else:
