@@ -72,17 +72,17 @@ def chatbot():
     response = {}  # Initialize an empty dictionary for the response data under "response" key
     if query:
         if query.lower() == "hi":
-            response["message"] = "Hey there, how can I help you today?"
+            response = "Hey there, how can I help you today?"
         elif query.lower() == "thanks":
-            response["message"] = "My pleasure."
+            response = "My pleasure."
         elif query.lower() == "bye":
-            response["message"] = "Goodbye!"
+            response = "Goodbye!"
         elif query.lower() == "headlines":
             headlines = get_news_headlines('hoid1')
             if headlines:
-                response["headlines"] = headlines
+                response = headlines
             else:
-                response["error"] = "Sorry, could not fetch news headlines at the moment."
+                response = "Sorry, could not fetch news headlines at the moment."
         else:
             city = extract_city(query)
             if city:
@@ -90,13 +90,13 @@ def chatbot():
                 if weather_data:
                     temperature = weather_data['main']['temp']
                     description = weather_data['weather'][0]['description']
-                    response["weather"] = f"Weather in {city}: Temperature: {temperature} °C, Description: {description}"
+                    response = f"Weather in {city}: Temperature: {temperature} °C, Description: {description}"
                 else:
-                    response["error"] = f"Sorry, weather data for {city} is not available"
+                    response = f"Sorry, weather data for {city} is not available"
             else:
-                response["error"] = "No city found in the query"
+                response = "No city found in the query"
     else:
-        response["error"] = "No query provided"
+        response = "No query provided"
     return jsonify({"response": response})  # Return response data as JSON under "response" key
 
 if __name__ == "__main__":
