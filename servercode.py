@@ -4,9 +4,14 @@ from flask_cors import CORS
 from waitress import serve
 import requests
 from bs4 import BeautifulSoup
+import logging
 
 app = Flask(__name__)
 CORS(app)
+
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)  # Set the logging level to INFO
 
 # Load cities from the text file
 with open("cities.txt", "r") as file:
@@ -38,16 +43,17 @@ def extract_city(query):
 def get_news_headlines():
     url = 'https://timesofindia.indiatimes.com/'  # Replace with the actual URL
     try:
+        logging.info("Fetching news headlines from Times of India...")
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for non-200 status codes
         soup = BeautifulSoup(response.content, "html.parser")
         itemprop_content = soup.find('h1', itemprop="itemprop").get_text(strip=True)  # Assuming "itemprop" is the attribute
-        return {'headlines': itemprop_content}  # Return headlines as JSON
+        return itemprop_content
     except requests.RequestException as e:
-        print(f"Error fetching news headlines: {e}")
+        logging.error(f"Error fetching news headlines: {e}")
         return None
     except Exception as e:
-        print(f"Error parsing news headlines: {e}")
+        logging.error(f"Error parsing news headlines: {e}")
         return None
 
 @app.route("/", methods=["POST"])
