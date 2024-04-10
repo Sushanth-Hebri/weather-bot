@@ -39,14 +39,14 @@ def extract_city(query):
             return word.title()
     return None
 
-def get_news_headlines():
+def get_news_headlines(class_name):
     url = 'https://timesofindia.indiatimes.com/'  # Replace with the actual URL
     try:
-        logging.info("Fetching news headlines from Times of India...")
+        logging.info(f"Fetching news headlines from Times of India with class {class_name}...")
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for non-200 status codes
-        soup = BeautifulSoup(response.text, 'html.parser')  # Use response.text instead of response.content
-        parent_div = soup.find('div', class_='hoid1')  # Replace class_name with the actual class name
+        soup = BeautifulSoup(response.text, 'html.parser')
+        parent_div = soup.find('div', class_=class_name)
         if parent_div:
             figcaption_tag = parent_div.find('figcaption')
             if figcaption_tag:
@@ -77,9 +77,10 @@ def chatbot():
         elif query.lower() == "bye":
             response = "Goodbye!"
         elif query.lower() == "headlines":
-            news_headlines = get_news_headlines()
-            if news_headlines:
-                response = news_headlines
+            headlines1 = get_news_headlines('hoid1')
+            headlines2 = get_news_headlines('Hn2z7')
+            if headlines1 and headlines2:
+                response = {"headlines1": headlines1, "headlines2": headlines2}
             else:
                 response = {"error": "Sorry, could not fetch news headlines at the moment."}
         else:
