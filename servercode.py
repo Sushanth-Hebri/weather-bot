@@ -56,7 +56,7 @@ def get_news_headlines(class_name):
                 logging.error("No figcaption tag found within the parent div")
                 return None
         else:
-            logging.error("No parent div found with the specified class")
+            logging.error(f"No parent div found with the specified class {class_name}")
             return None
     except requests.RequestException as e:
         logging.error(f"Error fetching news headlines: {e}")
