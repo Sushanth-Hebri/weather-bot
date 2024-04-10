@@ -44,12 +44,11 @@ def get_news_headlines():
         itemprop_content = soup.find('h1', itemprop="itemprop").get_text(strip=True)  # Assuming "itemprop" is the attribute
         return itemprop_content
     except requests.RequestException as e:
-        logging.error(f"Error fetching news headlines: {e}")
+        print(f"Error fetching news headlines: {e}")
         return None
     except Exception as e:
-        logging.error(f"Error parsing news headlines: {e}")
+        print(f"Error parsing news headlines: {e}")
         return None
-
 
 @app.route("/", methods=["POST"])
 def chatbot():
