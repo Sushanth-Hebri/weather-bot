@@ -69,20 +69,20 @@ def get_news_headlines(class_name):
 def chatbot():
     data = request.json
     query = data.get('query')  # Assuming the user sends the query in the 'query' field
-    response_data = {}  # Initialize an empty dictionary for the response data
+    response = {}  # Initialize an empty dictionary for the response data under "response" key
     if query:
         if query.lower() == "hi":
-            response_data["message"] = "Hey there, how can I help you today?"
+            response["message"] = "Hey there, how can I help you today?"
         elif query.lower() == "thanks":
-            response_data["message"] = "My pleasure."
+            response["message"] = "My pleasure."
         elif query.lower() == "bye":
-            response_data["message"] = "Goodbye!"
+            response["message"] = "Goodbye!"
         elif query.lower() == "headlines":
             headlines = get_news_headlines('hoid1')
             if headlines:
-                response_data["headlines"] = headlines
+                response["headlines"] = headlines
             else:
-                response_data["error"] = "Sorry, could not fetch news headlines at the moment."
+                response["error"] = "Sorry, could not fetch news headlines at the moment."
         else:
             city = extract_city(query)
             if city:
@@ -90,14 +90,14 @@ def chatbot():
                 if weather_data:
                     temperature = weather_data['main']['temp']
                     description = weather_data['weather'][0]['description']
-                    response_data["weather"] = f"Weather in {city}: Temperature: {temperature} °C, Description: {description}"
+                    response["weather"] = f"Weather in {city}: Temperature: {temperature} °C, Description: {description}"
                 else:
-                    response_data["error"] = f"Sorry, weather data for {city} is not available"
+                    response["error"] = f"Sorry, weather data for {city} is not available"
             else:
-                response_data["error"] = "No city found in the query"
+                response["error"] = "No city found in the query"
     else:
-        response_data["error"] = "No query provided"
-    return jsonify(response_data)  # Return response data as JSON
+        response["error"] = "No query provided"
+    return jsonify({"response": response})  # Return response data as JSON under "response" key
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=5000)
