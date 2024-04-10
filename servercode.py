@@ -78,9 +78,9 @@ def chatbot():
         elif query.lower() == "bye":
             response["response"] = "Goodbye!"
         elif query.lower() == "headlines":
-            headlines1 = get_news_headlines('hoid1')
-            if headlines1:
-                response["headlines1"] = headlines1
+            response = get_news_headlines('hoid1')
+            if response:
+                response["headlines1"] = response
             else:
                 response["error"] = "Sorry, could not fetch news headlines at the moment."
         else:
