@@ -47,8 +47,13 @@ def get_news_headlines():
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for non-200 status codes
         soup = BeautifulSoup(response.content, "html.parser")
-        itemprop_content = soup.find('h1', itemprop="itemprop").get_text(strip=True)  # Assuming "itemprop" is the attribute
-        return itemprop_content
+        itemprop_content = soup.find('h1', itemprop="itemprop")
+        if itemprop_content:
+            headlines_text = itemprop_content.get_text(strip=True)
+            return headlines_text
+        else:
+            logging.error("No headlines found on the page")
+            return None
     except requests.RequestException as e:
         logging.error(f"Error fetching news headlines: {e}")
         return None
