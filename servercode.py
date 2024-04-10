@@ -77,6 +77,14 @@ def chatbot():
             response = "My pleasure."
         elif query.lower() == "bye":
             response = "Goodbye!"
+        elif query.lower() == "who is your creator":
+            response = "sushanth , is my owner"
+        elif query.lower() == "how are you":
+            response = "as a bot i am idle"
+        elif query.lower() == "what is your name":
+            response = "personal assistant bot"
+        elif query.lower() == "what can you do":
+            response = "i can tell weather, haedlines and i can greet"
         elif query.lower() == "headlines":
             headlines = get_news_headlines('hoid1')
             if headlines:
