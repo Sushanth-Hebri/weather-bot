@@ -3,6 +3,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from waitress import serve
 import requests
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 CORS(app)
@@ -34,6 +35,17 @@ def extract_city(query):
             return word.title()
     return None
 
+def get_news_headlines():
+    url = 'https://timesofindia.indiatimes.com/'  # Replace with the actual URL
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, "html.parser")
+        itemprop_content = soup.find('h1', itemprop="itemprop").get_text(strip=True)  # Assuming "itemprop" is the attribute
+        return itemprop_content
+    else:
+        print("Error fetching news headlines")
+        return None
+
 @app.route("/", methods=["POST"])
 def chatbot():
     data = request.json
@@ -45,6 +57,12 @@ def chatbot():
             response = "My pleasure."
         elif query.lower() == "bye":
             response = "Goodbye!"
+        elif query.lower() == "headlines":
+            news_headlines = get_news_headlines()
+            if news_headlines:
+                response = news_headlines
+            else:
+                response = "Sorry, could not fetch news headlines at the moment."
         else:
             city = extract_city(query)
             if city:
