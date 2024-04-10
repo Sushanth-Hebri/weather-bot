@@ -37,14 +37,19 @@ def extract_city(query):
 
 def get_news_headlines():
     url = 'https://timesofindia.indiatimes.com/'  # Replace with the actual URL
-    response = requests.get(url)
-    if response.status_code == 200:
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for non-200 status codes
         soup = BeautifulSoup(response.content, "html.parser")
         itemprop_content = soup.find('h1', itemprop="itemprop").get_text(strip=True)  # Assuming "itemprop" is the attribute
         return itemprop_content
-    else:
-        print("Error fetching news headlines")
+    except requests.RequestException as e:
+        logging.error(f"Error fetching news headlines: {e}")
         return None
+    except Exception as e:
+        logging.error(f"Error parsing news headlines: {e}")
+        return None
+
 
 @app.route("/", methods=["POST"])
 def chatbot():
