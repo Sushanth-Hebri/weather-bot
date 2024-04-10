@@ -9,7 +9,6 @@ import logging
 app = Flask(__name__)
 CORS(app)
 
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)  # Set the logging level to INFO
 
@@ -30,7 +29,7 @@ def get_weather(city):
         weather_data = response.json()
         return weather_data
     else:
-        print("Error fetching weather data")
+        logging.error("Error fetching weather data")
         return None
 
 def extract_city(query):
@@ -46,13 +45,18 @@ def get_news_headlines():
         logging.info("Fetching news headlines from Times of India...")
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for non-200 status codes
-        soup = BeautifulSoup(response.content, "html.parser")
-        itemprop_content = soup.find('h1', itemprop="itemprop")
-        if itemprop_content:
-            headlines_text = itemprop_content.get_text(strip=True)
-            return headlines_text
+        soup = BeautifulSoup(response.text, 'html.parser')  # Use response.text instead of response.content
+        parent_div = soup.find('div', class_='hoid1')  # Replace class_name with the actual class name
+        if parent_div:
+            figcaption_tag = parent_div.find('figcaption')
+            if figcaption_tag:
+                headlines_text = figcaption_tag.get_text(strip=True)
+                return headlines_text
+            else:
+                logging.error("No figcaption tag found within the parent div")
+                return None
         else:
-            logging.error("No headlines found on the page")
+            logging.error("No parent div found with the specified class")
             return None
     except requests.RequestException as e:
         logging.error(f"Error fetching news headlines: {e}")
