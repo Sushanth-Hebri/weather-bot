@@ -74,10 +74,15 @@ def get_hn2z7_headlines():
         soup = BeautifulSoup(response.text, 'html.parser')
         hn2z7_tag = soup.find('a', class_='Hn2z7')
         if hn2z7_tag:
-            headlines_text = hn2z7_tag.get_text(strip=True)
-            return headlines_text
+            figcaption_tag = hn2z7_tag.find('figcaption')
+            if figcaption_tag:
+                headlines_text = figcaption_tag.get_text(strip=True)
+                return headlines_text
+            else:
+                logging.error("No figcaption tag found within the Hn2z7 <a> tag")
+                return None
         else:
-            logging.error("No Hn2z7 tag found within an <a> tag")
+            logging.error("No Hn2z7 <a> tag found")
             return None
     except requests.RequestException as e:
         logging.error(f"Error fetching Hn2z7 headlines: {e}")
@@ -85,6 +90,7 @@ def get_hn2z7_headlines():
     except Exception as e:
         logging.error(f"Error parsing Hn2z7 headlines: {e}")
         return None
+
 
 @app.route("/", methods=["POST"])
 def chatbot():
