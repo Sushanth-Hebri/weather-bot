@@ -70,18 +70,19 @@ def chatbot():
     data = request.json
     query = data.get('query')  # Assuming the user sends the query in the 'query' field
     if query:
+        response = {}  # Initialize the response dictionary
         if query.lower() == "hi":
-            response = "Hey there, how can I help you today?"
+            response["response"] = "Hey there, how can I help you today?"
         elif query.lower() == "thanks":
-            response = "My pleasure."
+            response["response"] = "My pleasure."
         elif query.lower() == "bye":
-            response = "Goodbye!"
+            response["response"] = "Goodbye!"
         elif query.lower() == "headlines":
             headlines1 = get_news_headlines('hoid1')
             if headlines1:
-                response = {"headlines1": headlines1}
+                response["headlines1"] = headlines1
             else:
-                response = {"error": "Sorry, could not fetch news headlines at the moment."}
+                response["error"] = "Sorry, could not fetch news headlines at the moment."
         else:
             city = extract_city(query)
             if city:
@@ -89,14 +90,14 @@ def chatbot():
                 if weather_data:
                     temperature = weather_data['main']['temp']
                     description = weather_data['weather'][0]['description']
-                    response = f"Weather in {city}: Temperature: {temperature} °C, Description: {description}"
+                    response["response"] = f"Weather in {city}: Temperature: {temperature} °C, Description: {description}"
                 else:
-                    response = f"Sorry, weather data for {city} is not available"
+                    response["response"] = f"Sorry, weather data for {city} is not available"
             else:
-                response = "No city found in the query"
+                response["response"] = "No city found in the query"
     else:
-        response = "No query provided"
-    return jsonify({"response": response})  # Return response as JSON
+        response = {"response": "No query provided"}
+    return jsonify(response)  # Return response as JSON
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=5000)
