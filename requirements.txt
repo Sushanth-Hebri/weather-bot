@@ -8,3 +8,4 @@ transformers
 requests
 numpy
 tensorflow
+tf-keras==0.7.0
