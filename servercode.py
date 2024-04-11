@@ -1,15 +1,10 @@
-import asyncio
 import json
-import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from waitress import serve
 import requests
 from bs4 import BeautifulSoup
-import websockets
-import transformers
-import numpy as np
-import datetime
+import logging
 
 app = Flask(__name__)
 CORS(app)
@@ -21,68 +16,96 @@ logging.basicConfig(level=logging.INFO)  # Set the logging level to INFO
 with open("cities.txt", "r") as file:
     cities = [city.strip().lower() for city in file.readlines()]
 
-class ChatBot():
-    def __init__(self, name):
-        self.name = name
+def get_weather(city):
+    api_key = "7f2847f45cfd99c08cd9d979d939bb21"  # Replace with your OpenWeatherMap API key
+    base_url = "https://api.openweathermap.org/data/2.5/weather"
+    params = {
+        "q": city,
+        "units": "metric",  # Change to "imperial" for Fahrenheit
+        "appid": api_key
+    }
+    response = requests.get(base_url, params=params)
+    if response.status_code == 200:
+        weather_data = response.json()
+        return weather_data
+    else:
+        logging.error("Error fetching weather data")
+        return None
 
-    def wake_up(self, text):
-        return True if self.name in text.lower() else False
+def extract_city(query):
+    query_words = query.lower().split()
+    for word in query_words:
+        if word in cities:
+            return word.title()
+    return None
 
-    @staticmethod
-    def action_time():
-        return datetime.datetime.now().time().strftime('%H:%M')
-
-    @staticmethod
-    def text_to_text(input_text):
-        nlp = transformers.pipeline("conversational", model="microsoft/DialoGPT-medium")
-        chat = nlp(transformers.Conversation(input_text), pad_token_id=50256)
-        response = str(chat)
-        response = response[response.find("bot >> ") + 6:].strip()
-        return response
-
-chatbot = ChatBot(name="Dave")
-
-async def handle_client(websocket, path):
-    async for message in websocket:
-        data = json.loads(message)
-        query = data.get('query')  # Assuming the user sends the query in the 'query' field
-        response = {}  # Initialize an empty dictionary for the response data under "response" key
-        if query:
-            if chatbot.wake_up(query):
-                response = "Hello, I am Dave the AI. How can I assist you?"
-            elif "time" in query:
-                response = chatbot.action_time()
-            elif any(i in query for i in ["thank", "thanks"]):
-                response = np.random.choice(["you're welcome!", "anytime!", "no problem!", "cool!", "I'm here if you need me!", "mention not"])
-            elif any(i in query for i in ["exit", "close"]):
-                response = np.random.choice(["Tata", "Have a good day", "Bye", "Goodbye", "Hope to meet soon", "peace out!"])
+def get_news_headlines(class_name):
+    url = 'https://timesofindia.indiatimes.com/'  # Replace with the actual URL
+    try:
+        logging.info(f"Fetching news headlines from Times of India with class {class_name}...")
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for non-200 status codes
+        soup = BeautifulSoup(response.text, 'html.parser')
+        parent_div = soup.find('div', class_=class_name)
+        if parent_div:
+            figcaption_tag = parent_div.find('figcaption')
+            if figcaption_tag:
+                headlines_text = figcaption_tag.get_text(strip=True)
+                return headlines_text
             else:
-                response = chatbot.text_to_text(query)
+                logging.error("No figcaption tag found within the parent div")
+                return None
         else:
-            response = "No query provided"
-        await websocket.send(json.dumps({"response": response}))  # Send response data as JSON
+            logging.error(f"No parent div found with the specified class {class_name}")
+            return None
+    except requests.RequestException as e:
+        logging.error(f"Error fetching news headlines: {e}")
+        return None
+    except Exception as e:
+        logging.error(f"Error parsing news headlines: {e}")
+        return None
 
 @app.route("/", methods=["POST"])
-def chatbot_http():
+def chatbot():
     data = request.json
     query = data.get('query')  # Assuming the user sends the query in the 'query' field
     response = {}  # Initialize an empty dictionary for the response data under "response" key
     if query:
-        async def send_to_websocket():
-            async with websockets.connect('ws://localhost:8765') as websocket:
-                await websocket.send(json.dumps({"query": query}))
-                response = await websocket.recv()
-                return response
-
-        response = asyncio.run(send_to_websocket())
+        if query.lower() == "hi":
+            response = "Hey there, how can I help you today?"
+        elif query.lower() == "thanks":
+            response = "My pleasure."
+        elif query.lower() == "bye":
+            response = "Goodbye!"
+        elif query.lower() == "who is your creator":
+            response = "sushanth , is my owner"
+        elif query.lower() == "how are you":
+            response = "as a bot i am idle"
+        elif query.lower() == "what is your name":
+            response = "personal assistant bot"
+        elif query.lower() == "what can you do":
+            response = "i can tell weather, haedlines and i can greet"
+        elif query.lower() == "headlines":
+            headlines = get_news_headlines('hoid1')
+            if headlines:
+                response = headlines
+            else:
+                response = "Sorry, could not fetch news headlines at the moment."
+        else:
+            city = extract_city(query)
+            if city:
+                weather_data = get_weather(city)
+                if weather_data:
+                    temperature = weather_data['main']['temp']
+                    description = weather_data['weather'][0]['description']
+                    response = f"Weather in {city}: Temperature: {temperature} °C, Description: {description}"
+                else:
+                    response = f"Sorry, weather data for {city} is not available"
+            else:
+                response = "No city found in the query"
     else:
         response = "No query provided"
     return jsonify({"response": response})  # Return response data as JSON under "response" key
 
-async def start_websocket_server():
-    server = await websockets.serve(handle_client, "localhost", 8765)
-    await server.wait_closed()
-
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(start_websocket_server())
     serve(app, host='0.0.0.0', port=5000)
