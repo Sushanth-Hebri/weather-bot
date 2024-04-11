@@ -7,3 +7,4 @@ flask-cors
 transformers
 requests
 numpy
+tensorflow==2.0
