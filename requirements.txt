@@ -6,6 +6,4 @@ beautifulsoup4==4.10.0
 flask-cors
 transformers
 requests
-numpy
-tensorflow
-tf-keras
+
