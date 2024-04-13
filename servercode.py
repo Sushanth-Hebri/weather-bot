@@ -39,30 +39,32 @@ def extract_city(query):
             return word.title()
     return None
 
-def get_news_headlines(class_name):
+def get_news_data(class_name):
     url = 'https://timesofindia.indiatimes.com/'  # Replace with the actual URL
     try:
-        logging.info(f"Fetching news headlines from Times of India with class {class_name}...")
+        logging.info(f"Fetching news data from Times of India with class {class_name}...")
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for non-200 status codes
         soup = BeautifulSoup(response.text, 'html.parser')
         parent_div = soup.find('div', class_=class_name)
         if parent_div:
             figcaption_tag = parent_div.find('figcaption')
-            if figcaption_tag:
+            img_tag = parent_div.find('img')
+            if figcaption_tag and img_tag:
                 headlines_text = figcaption_tag.get_text(strip=True)
-                return headlines_text
+                image_url = img_tag['src']
+                return {"headlines": headlines_text, "image_url": image_url}
             else:
-                logging.error("No figcaption tag found within the parent div")
+                logging.error("No figcaption tag or img tag found within the parent div")
                 return None
         else:
             logging.error(f"No parent div found with the specified class {class_name}")
             return None
     except requests.RequestException as e:
-        logging.error(f"Error fetching news headlines: {e}")
+        logging.error(f"Error fetching news data: {e}")
         return None
     except Exception as e:
-        logging.error(f"Error parsing news headlines: {e}")
+        logging.error(f"Error parsing news data: {e}")
         return None
 
 @app.route("/", methods=["POST"])
@@ -86,11 +88,11 @@ def chatbot():
         elif query.lower() == "what can you do":
             response = "i can tell weather, haedlines and i can greet"
         elif query.lower() == "headlines":
-            headlines = get_news_headlines('hoid1')
-            if headlines:
-                response = headlines
+            news_data = get_news_data('hoid1')  # Use the updated function
+            if news_data:
+                response = news_data
             else:
-                response = "Sorry, could not fetch news headlines at the moment."
+                response = "Sorry, could not fetch news data at the moment."
         else:
             city = extract_city(query)
             if city:
