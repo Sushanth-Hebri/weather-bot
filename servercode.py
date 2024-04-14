@@ -91,6 +91,25 @@ def get_image_url(class_name):
         logging.error(f"Error parsing image URL: {e}")
         return None
 
+def scrape_deccan_herald_news():
+    url = 'https://www.deccanherald.com/'  # Update this with the actual URL
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        news_articles = soup.find_all(class_='Kk1mG')
+
+        headlines = []
+        for article in news_articles:
+            headline_element = article.find('h2', class_='headline')
+            if headline_element:
+                headline_text = headline_element.get_text(strip=True)
+                headlines.append(headline_text)
+
+        return headlines
+    else:
+        return None
+
 @app.route("/", methods=["POST"])
 def chatbot():
     data = request.json
@@ -133,6 +152,14 @@ def chatbot():
     else:
         response = "No query provided"
     return jsonify({"response": response})  # Return response data as JSON under "response" key
+
+@app.route("/scrape-deccan-herald", methods=["GET"])
+def scrape_deccan_herald():
+    headlines = scrape_deccan_herald_news()
+    if headlines:
+        return jsonify({"headlines": headlines})
+    else:
+        return jsonify({"error": "Failed to fetch news from Deccan Herald"}), 500
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=5000)
