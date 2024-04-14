@@ -110,6 +110,37 @@ def scrape_deccan_herald_news():
     else:
         return None
 
+def scrape_news(url):
+    # Send a GET request to the specified URL
+    response = requests.get(url)
+    
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        # Parse the HTML content of the page using BeautifulSoup
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Find all the article containers on the page
+        articles = soup.find_all('div', class_='article-text-wrapper')
+        
+        # Initialize an empty list to store the scraped headlines
+        headlines = []
+        
+        # Iterate through each article container and extract the headline
+        for article in articles:
+            title = article.find('a', href=True).text.strip()
+            headlines.append(title)
+        
+        # Create a dictionary with the headlines list
+        response_json = {
+            'headlines': headlines
+        }
+        
+        # Return the JSON response
+        return json.dumps(response_json, indent=4)
+    else:
+        # If the request was not successful, return None
+        return None
+
 @app.route("/", methods=["POST"])
 def chatbot():
     data = request.json
@@ -160,6 +191,19 @@ def scrape_deccan_herald():
         return jsonify({"headlines": headlines})
     else:
         return jsonify({"error": "Failed to fetch news from Deccan Herald"}), 500
+
+@app.route("/wire", methods=["GET"])
+def scrape_wire():
+    # URL of the website to scrape
+    url_to_scrape = 'https://thewire.in/'
+    
+    # Scrape news and get the JSON response in the desired format
+    news_json = scrape_news(url_to_scrape)
+
+    if news_json:
+        return jsonify(news_json)
+    else:
+        return jsonify({"error": "Failed to fetch news from The Wire"}), 500
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=5000)
