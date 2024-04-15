@@ -208,5 +208,24 @@ def scrape_wire():
     else:
         return jsonify({"error": "Failed to fetch news from The Wire"}), 500
 
+@app.route("/bbc_news", methods=["GET"])
+def bbc_news():
+    url = 'https://www.bbc.com/news'
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        headlines = soup.find_all('h2', {'class': 'sc-4fedabc7-3', 'data-testid': 'card-headline'})
+
+        if headlines:
+            news_list = [headline.text.strip() for headline in headlines]
+            response_json = {'headlines': news_list}
+        else:
+            response_json = {'error': 'No headlines found with the specified class and data-testid.'}
+    else:
+        response_json = {'error': 'Failed to fetch the webpage.'}
+
+    return json.dumps(response_json)
+
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=5000)
