@@ -5,6 +5,7 @@ from waitress import serve
 import requests
 from bs4 import BeautifulSoup
 import logging
+import wikipediaapi
 
 app = Flask(__name__)
 CORS(app)
@@ -143,6 +144,20 @@ def scrape_news(url):
         # If the request was not successful, return None
         return None
 
+def get_wikipedia_content(query):
+    wiki_wiki = wikipediaapi.Wikipedia(
+        language='en',  # Specify the language ('en' for English)
+        user_agent='MyWikiBot/1.0'  # Specify a user agent string
+    )
+
+    # Fetch the Wikipedia page based on the user's query
+    page = wiki_wiki.page(query)
+
+    if page.exists():
+        # Return the summary of the Wikipedia page
+        return page.summary
+    else:
+        return "Page not found on Wikipedia."
 
 @app.route("/", methods=["POST"])
 def chatbot():
@@ -171,6 +186,10 @@ def chatbot():
                 response = {"headlines": headlines, "image_url": image_url} if image_url else headlines
             else:
                 response = "Sorry, could not fetch news headlines at the moment."
+        elif query.lower().startswith("wiki:"):
+            search_query = query[5:].strip()  # Remove "wiki:" prefix
+            wiki_content = get_wikipedia_content(search_query)
+            response = {"wiki_content": wiki_content}
         else:
             city = extract_city(query)
             if city:
@@ -226,6 +245,17 @@ def bbc_news():
         response_json = {'error': 'Failed to fetch the webpage.'}
 
     return json.dumps(response_json)
+
+@app.route("/wiki", methods=["POST"])
+def wiki():
+    data = request.json
+    query = data.get('query')  # Assuming the user sends the query in the 'query' field
+    if query:
+        search_query = query.strip()  # Remove any leading/trailing spaces
+        wiki_content = get_wikipedia_content(search_query)
+        return jsonify({"wiki_content": wiki_content})
+    else:
+        return jsonify({"error": "No query provided"}), 400
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=5000)
