@@ -120,15 +120,17 @@ def scrape_news(url):
         soup = BeautifulSoup(response.content, 'html.parser')
         
         # Find all the article containers on the page
-        articles = soup.find_all('div', class_='article-text-wrapper')
+        articles = soup.find_all('div', class_='article-container')
         
         # Initialize an empty list to store the scraped headlines
         headlines = []
         
         # Iterate through each article container and extract the headline
         for article in articles:
-            title = article.find('a', href=True).text.strip()
-            headlines.append(title)
+            article_title = article.find('div', class_='article-title')
+            if article_title:
+                title_text = article_title.find('a', href=True).text.strip()
+                headlines.append(title_text)
         
         # Create a dictionary with the headlines list
         response_json = {
@@ -136,10 +138,11 @@ def scrape_news(url):
         }
         
         # Return the JSON response
-        return json.dumps(response_json, indent=4)
+        return response_json
     else:
         # If the request was not successful, return None
         return None
+
 
 @app.route("/", methods=["POST"])
 def chatbot():
