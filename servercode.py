@@ -238,7 +238,7 @@ def scrape_deccan_herald():
 def scrape_apnews():
     headlines = apnews()
     if headlines:
-        return jsonify({"headlines": headlines})
+        return headlines
     else:
         return jsonify({"error": "Failed to fetch news from AP News"}), 500
 
