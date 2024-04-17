@@ -65,7 +65,25 @@ def get_news_headlines(class_name):
     except Exception as e:
         logging.error(f"Error parsing news headlines: {e}")
         return None
-
+# Function to scrape news headlines from AP News
+def apnews():
+    try:
+        url = "https://apnews.com/"
+        response = requests.get(url)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, "html.parser")
+            headlines = []
+            # Find all news elements with the specified class name
+            news_elements = soup.find_all(class_="PagePromoContentIcons-text")
+            for news in news_elements:
+                headline = news.get_text().strip()
+                headlines.append(headline)
+            return json.dumps({"headlines": headlines})
+        else:
+            return json.dumps({"error": "Failed to fetch news headlines"})
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+        
 def get_image_url(class_name):
     url = 'https://timesofindia.indiatimes.com/'  # Replace with the actual URL
     try:
@@ -213,6 +231,18 @@ def scrape_deccan_herald():
         return jsonify({"headlines": headlines})
     else:
         return jsonify({"error": "Failed to fetch news from Deccan Herald"}), 500
+
+
+# Route for scraping AP News headlines
+@app.route("/apnews", methods=["GET"])
+def scrape_apnews():
+     headlines = apnews()
+     if headlines:
+        return jsonify({"headlines": headlines})
+    else:
+        return jsonify({"error": "Failed to fetch news from Deccan Herald"}), 500
+
+
 
 @app.route("/wire", methods=["GET"])
 def scrape_wire():
