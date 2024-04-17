@@ -236,11 +236,12 @@ def scrape_deccan_herald():
 # Route for scraping AP News headlines
 @app.route("/apnews", methods=["GET"])
 def scrape_apnews():
-     headlines = apnews()
-     if headlines:
+    headlines = apnews()
+    if headlines:
         return jsonify({"headlines": headlines})
     else:
-        return jsonify({"error": "Failed to fetch news from Deccan Herald"}), 500
+        return jsonify({"error": "Failed to fetch news from AP News"}), 500
+
 
 
 
