@@ -6,7 +6,6 @@ import requests
 from bs4 import BeautifulSoup
 import logging
 import wikipediaapi
-const fetch = require('node-fetch');
 
 app = Flask(__name__)
 CORS(app)
@@ -14,16 +13,15 @@ CORS(app)
 # Configure logging
 logging.basicConfig(level=logging.INFO)  # Set the logging level to INFO
 
-app.get('/api/random-quote', async (req, res) => {
-    try {
-        const response = await fetch('https://zenquotes.io/api/random');
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching quote:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+@app.route('/api/random-quote')
+def get_random_quote():
+    try:
+        response = requests.get('https://zenquotes.io/api/random')
+        data = response.json()
+        return jsonify(data)
+    except Exception as e:
+        print('Error fetching quote:', e)
+        return jsonify(error='Internal Server Error'), 500
 
 
 
