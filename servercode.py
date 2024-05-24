@@ -6,12 +6,29 @@ import requests
 from bs4 import BeautifulSoup
 import logging
 import wikipediaapi
+const fetch = require('node-fetch');
 
 app = Flask(__name__)
 CORS(app)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)  # Set the logging level to INFO
+
+app.get('/api/random-quote', async (req, res) => {
+    try {
+        const response = await fetch('https://zenquotes.io/api/random');
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching quote:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+
+
+
 
 # Load cities from the text file
 with open("cities.txt", "r") as file:
